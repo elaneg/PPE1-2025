@@ -3,7 +3,9 @@
 
 #!/usr/bin/bash
 
-CHEMIN="ann"
+echo "argument :$1 "
+
+CHEMIN=$1
 
 
 echo "Nombre de lieux en 2016 :"
