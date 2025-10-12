@@ -1,2 +1,0 @@
-#premier script
-
