@@ -6,9 +6,13 @@ echo "Veuillez rentrer un argument"
 exit 
 fi
 
+count=0
 while read -r line;
 do
-	echo ${line};
+	#wc -l $URL
+	count=$count+1	
+	
+    echo $count "-" ${line};
 done < "$URL";
 
 
