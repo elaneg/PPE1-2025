@@ -16,7 +16,12 @@ fi
 
 
 count=0
-#sortie="tableaux/tableau-fr.tsv"
+
+sortie="../tableaux/tableau-fr.tsv" #on indique le fichier de sortie
+
+echo -e "ID\tURL\tcode_http\tencodage\tnombre_de_mots" > "$sortie" #en-tête du tableau
+
+
 while read -r line;
 do
 
@@ -25,8 +30,10 @@ if [[ "$line" = http://* ]] || [[ "$line" = https://* ]]; then
 
 	count=$(( $count + 1 )) #on numérote chaque ligne
 
+
 	 code_http=$(curl -s -o /dev/null -L -w "%{http_code}" $line); #on récupère la réponse http : "-s -o /dev/null" pour ne pas surcharger le résultat,
 	 #"-L" pour suivre les redirections 
+
 
 	 contenu=$(curl -s "$line") #contenu de la page
 	 encodage=$(echo "$contenu" | grep -i -o "utf-8" | head -n 1 | cut -d= -f2) #on récupère l'encodage 
@@ -36,9 +43,12 @@ if [[ "$line" = http://* ]] || [[ "$line" = https://* ]]; then
 	 echo $encodage "encodage introuvable" #dans ce cas-là je ne sais pas pourquoi il fait un retour à la ligne
 	 fi
 
+
 	nb_mots=$(echo "$contenu" | wc -w) #on compte les mots
 	
-   echo -e "${count}\t${line}\t${code_http}\t${encodage}\t${nb_mots}" #résultat ("-e" permet de reconnaître les tabulations)
+	
+   echo -e "${count}\t${line}\t${code_http}\t${encodage}\t${nb_mots}" #résultat CONSOLE ("-e" permet de reconnaître les tabulations)
+   echo -e "${num}\t${line}\t${code_http}\t${encodage}\t${nb_mots}" >> "$sortie" #résultat FICHIER TSV
 
 else 
 
