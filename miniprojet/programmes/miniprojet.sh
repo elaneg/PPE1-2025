@@ -7,12 +7,12 @@ exit
 fi
 
 count=0
+sortie="tableaux/tableau-fr.tsv"
 while read -r line;
 do
-	#wc -l $URL
-	count=$count+1	
+	count=$(( $count + 1 ))
 	
-    echo $count "-" ${line};
+   echo "${count}\t${line}"  #on met -e pour \t soit considéré comme tabulation
 done < "$URL";
 
 
