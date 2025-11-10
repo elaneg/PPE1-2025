@@ -19,7 +19,28 @@ count=0
 
 sortie="../tableaux/tableau-fr.tsv" #on indique le fichier de sortie
 
+sortie_html="../tableaux/tableau-fr.html" #on indique le fichier html à écrire
+
 echo -e "ID\tURL\tcode_http\tencodage\tnombre_de_mots" > "$sortie" #en-tête du tableau
+
+#on initialise le fichier html
+echo -e " 
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Résultats de la collecte</title>
+</head>
+<body>
+<h1>Résultats de la collecte</h1>
+<table>
+<tr>
+    <th>#</th>
+    <th>URL</th>
+    <th>Code HTTP</th>
+    <th>Encodage</th>
+    <th>Nombre de mots</th>
+</tr>
+" > "$sortie_html"
 
 
 while read -r line;
@@ -44,11 +65,15 @@ if [[ "$line" = http://* ]] || [[ "$line" = https://* ]]; then
 	 fi
 
 
-	nb_mots=$(echo "$contenu" | wc -w) #on compte les mots
+	nb_mots=$(echo "$contenu" | lynx -dump -stdin -nolist | wc -w) #on compte les mots
 	
 	
    echo -e "${count}\t${line}\t${code_http}\t${encodage}\t${nb_mots}" #résultat CONSOLE ("-e" permet de reconnaître les tabulations)
    echo -e "${num}\t${line}\t${code_http}\t${encodage}\t${nb_mots}" >> "$sortie" #résultat FICHIER TSV
+
+   #on inscrit le résultat dans le tableau du ficher html
+   echo "<tr><td>$count</td><td>$line</td><td>$code_http</td><td>$encodage</td><td>$nb_mots</td></tr>" >> "$sortie_html"
+
 
 else 
 
