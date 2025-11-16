@@ -29,10 +29,12 @@ echo -e "
 <head>
     <meta charset="UTF-8">
     <title>Résultats de la collecte</title>
+    <link rel="stylesheet"
+href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css" />
 </head>
-<body>
-<h1>Résultats de la collecte</h1>
-<table>
+<body class="section">
+<h1 class="title is-2">Résultats de la collecte</h1>
+<table class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth">
 <tr>
     <th>ID</th>
     <th>URL</th>
