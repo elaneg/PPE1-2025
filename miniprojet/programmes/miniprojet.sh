@@ -34,7 +34,7 @@ echo -e "
 <h1>Résultats de la collecte</h1>
 <table>
 <tr>
-    <th>#</th>
+    <th>ID</th>
     <th>URL</th>
     <th>Code HTTP</th>
     <th>Encodage</th>
@@ -46,42 +46,34 @@ echo -e "
 while read -r line;
 do
 
-#on vérifie si l'URL donnée est valide en vérifiant si elle commence bien par http ou https
-if [[ "$line" = http://* ]] || [[ "$line" = https://* ]]; then
+	data=$(curl -s -i -L -w "%{http_code}\n%{content_type}" -o ./.data.tmp $line)
+	http_code=$(echo "$data" | head -1)
+	encoding=$(echo "$data" | tail -1 | grep -Po "charset=\S+" | cut -d"=" -f2)
 
-	count=$(( $count + 1 )) #on numérote chaque ligne
+	if [ -z "${encoding}" ]
+	then
+		encoding="N/A" # petit raccourci qu'on peut utiliser à la place du if : encoding=${encoding:-"N/A"}
+	fi
 
+	nbmots=$(cat ./.data.tmp | lynx -dump -nolist -stdin | wc -w)
 
-	 code_http=$(curl -s -o /dev/null -L -w "%{http_code}" $line); #on récupère la réponse http : "-s -o /dev/null" pour ne pas surcharger le résultat,
-	 #"-L" pour suivre les redirections 
+	echo -e "			<tr>
+				<td>$count</td>
+				<td>$line</td>
+				<td>$http_code</td>
+				<td>$encoding</td>
+				<td>$nbmots</td>
+			</tr>" >> "$sortie_html"
 
-
-	 contenu=$(curl -s "$line") #contenu de la page
-	 encodage=$(echo "$contenu" | grep -i -o "utf-8" | head -n 1 | cut -d= -f2) #on récupère l'encodage 
-
-	 #on gère les cas où il n'y a pas d'encodage :
-	 if [ -z "$encodage" ]; then
-	 echo $encodage "encodage introuvable" #dans ce cas-là je ne sais pas pourquoi il fait un retour à la ligne
-	 fi
-
-
-	nb_mots=$(echo "$contenu" | lynx -dump -stdin -nolist | wc -w) #on compte les mots
-	
-	
-   echo -e "${count}\t${line}\t${code_http}\t${encodage}\t${nb_mots}" #résultat CONSOLE ("-e" permet de reconnaître les tabulations)
-   echo -e "${num}\t${line}\t${code_http}\t${encodage}\t${nb_mots}" >> "$sortie" #résultat FICHIER TSV
-
-   #on inscrit le résultat dans le tableau du ficher html
-   echo "<tr><td>$count</td><td>$line</td><td>$code_http</td><td>$encodage</td><td>$nb_mots</td></tr>" >> "$sortie_html"
-
-
-else 
-
-echo "URL invalide"; #cas où l'URL n'est pas valide
-
-fi
+	count=$(expr $count + 1)
 
 done < "$URL";
+echo "		</table>
+	</body>
+</html>" >> "$sortie_html"
+
+
+rm ./.data.tmp
 
 
 #on n'utilise pas cat car la commande cat considère les liens comme des fichiers et va essayer de les chercher (et donc va afficher "file not found"),
